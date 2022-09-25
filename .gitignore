@@ -2,3 +2,7 @@
 idea
 /data/
 /.vscode/
+__pycahce__/*
+common/__pycache__/*
+red/__pycache__/*
+blue/__pycache__/*
