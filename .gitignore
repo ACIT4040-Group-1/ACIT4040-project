@@ -1,6 +1,6 @@
 /venv/
 idea
-/data/
+/data/*
 /.vscode/
 __pycache__/*
 common/__pycache__/*

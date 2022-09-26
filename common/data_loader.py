@@ -10,8 +10,8 @@ class DataLoader:
     def __init__(self):
         self.paths = [
             (
-                "data/real_vs_fake.zip",
-                "https://drive.google.com/file/d/1xj7RbvX_rGvqBk2mFXSLVSCubCujRRh1/view?usp=sharing",
+                "data/real-vs-fake.zip",
+                "https://drive.google.com/file/d/19T-ftY1EuYizoCShITz2n1i_pLeYa0Gl/view?usp=sharing",
             )
         ]
 
