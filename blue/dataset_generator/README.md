@@ -4,10 +4,12 @@
 - dataset/fake_images
 
 # Setup:
-```sbatch setup.sh
+```
+sbatch setup.sh
 ```
 
 # Run
-```sbatch create_dataset.sh
+```
+sbatch create_dataset.sh
 ```
 
