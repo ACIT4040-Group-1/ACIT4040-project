@@ -1,16 +1,14 @@
-from email.mime import image
-import tensorflow as tf
 import os
 import pathlib
 import pandas as pd
-import numpy as np
+import tensorflow as tf
 
 from zipfile import ZipFile
 from common.GoogleDrive import download_from_drive
 
 
 class DataLoader:
-    def __init__(self):
+    def __init__(self, BATCH_SIZE, BUFFER_SIZE=None):
         self.paths = [
             (
                 "data/real-vs-fake.zip",
@@ -18,9 +16,11 @@ class DataLoader:
             )
         ]
 
+        self.batch_size = BATCH_SIZE
+        self.buffer_size = BATCH_SIZE if BUFFER_SIZE is None else BUFFER_SIZE
+
         self.check_if_datasets_are_downloaded()
         self.check_if_datasets_are_unzipped()
-        self.labels = None
 
     def check_if_datasets_are_downloaded(self):
         for path, url in self.paths:
@@ -41,6 +41,36 @@ class DataLoader:
     def read_labels(self, labels_path):
         return pd.read_csv(labels_path)
 
+    def get_data(self, name="test"):
+        match name:
+            case "train":
+                path = "data/real-vs-fake/train/"
+                labels_path = "data/train.csv"
+                load = self.load_image_train
+            case "test":
+                path = "data/real-vs-fake/test/"
+                labels_path = "data/test.csv"
+                load = self.load_image_test_or_val
+            case "valid":
+                path = "data/real-vs-fake/valid/"
+                labels_path = "data/valid.csv"
+                load = self.load_image_test_or_val
+
+        df = self.read_labels(labels_path)
+
+        labels = []
+        for image in (images := os.listdir(path)):
+            labels.append(df.loc[df.id == image.split(".")[0]].label.values[0])
+
+        images = [path + image for image in images]
+
+        dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+        dataset = dataset.map(load, num_parallel_calls=tf.data.AUTOTUNE)
+        dataset = dataset.shuffle(self.buffer_size)
+        dataset = dataset.batch(self.batch_size)
+
+        return dataset
+
     def load_image_from_path(self, path, channels=3):
         image = tf.io.read_file(path)
         image = tf.image.decode_jpeg(image, channels=channels)
@@ -59,18 +89,15 @@ class DataLoader:
     def image_resizing(self, image):
         pass
 
-    def load_image_train(self, image_file):
-        self.labels = self.read_labels("data/train.csv")
+    def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
         # input_image = self.image_augmentation(input_image)
         # input_image = self.image_resizing(input_image)
         input_image = self.normalize(input_image)
-        return input_image, self.labels.loc[self.labels["path"] == image_file].label
+        return input_image, label
 
-    def load_image_test(self, image_file):
-        print(image_file[0])
-        self.labels = self.read_labels("data/test.csv")
+    def load_image_test_or_val(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
         # input_image = self.image_resizing(input_image)
         input_image = self.normalize(input_image)
-        return input_image, self.labels.loc[self.labels["path"] == image_file].label
+        return input_image, label
