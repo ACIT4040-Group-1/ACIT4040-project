@@ -1,6 +1,8 @@
 from common.data_loader import DataLoader
 
-DL = DataLoader(1)
+# example how to use data loader
+
+DL = DataLoader()
 data = DL.get_data()
 
 for i in data:

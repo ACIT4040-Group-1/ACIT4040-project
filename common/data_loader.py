@@ -1,14 +1,23 @@
 import os
+import yaml
 import pathlib
 import pandas as pd
 import tensorflow as tf
 
 from zipfile import ZipFile
+from yaml.loader import SafeLoader
 from common.GoogleDrive import download_from_drive
 
 
 class DataLoader:
-    def __init__(self, BATCH_SIZE, BUFFER_SIZE=None):
+    def __init__(self):
+        """
+        DataLoader Class
+        Downloads and unzips dataset
+        Config can be set in common/config.yml
+        Returns a generator of tensors -> (tensor(batch_size, images), tensor(batch_size, labels))
+
+        """
         self.paths = [
             (
                 "data/real-vs-fake.zip",
@@ -16,11 +25,24 @@ class DataLoader:
             )
         ]
 
-        self.batch_size = BATCH_SIZE
-        self.buffer_size = BATCH_SIZE if BUFFER_SIZE is None else BUFFER_SIZE
-
         self.check_if_datasets_are_downloaded()
         self.check_if_datasets_are_unzipped()
+
+        def get_config():
+            with open("common/config.yml") as f:
+                data = yaml.load(f, Loader=SafeLoader)
+
+            return data
+
+        self.config = get_config()
+
+        self.batch_size = self.config["batch_size"]
+
+        self.buffer_size = (
+            self.batch_size
+            if self.config["buffer_size"] is None
+            else self.config["buffer_size"]
+        )
 
     def check_if_datasets_are_downloaded(self):
         for path, url in self.paths:
@@ -41,7 +63,7 @@ class DataLoader:
     def read_labels(self, labels_path):
         return pd.read_csv(labels_path)
 
-    def get_data(self, name="test"):
+    def get_data(self, name="train"):
         match name:
             case "train":
                 path = "data/real-vs-fake/train/"
@@ -83,15 +105,36 @@ class DataLoader:
         image = (image / 127.5) - 1
         return image
 
-    def image_augmentation(self, image):
-        pass
+    @tf.function()
+    def image_augmentation(self, input_image):
+        if tf.random.uniform(()) > 0.5:
+            input_image = tf.image.flip_left_right(input_image)
+
+        if tf.random.uniform(()) > 0.5:
+            input_image = tf.image.random_crop(
+                input_image,
+                size=[
+                    self.config["image_height"],
+                    self.config["image_width"],
+                    self.config["image_channels"],
+                ],
+            )
+
+        if tf.random.uniform(()) > 0.5:
+
+            if tf.random.uniform(()) > 0.5:
+                input_image = tf.image.rot90(input_image, k=1)  # rotate 90 degrees
+            else:
+                input_image = tf.image.rot90(input_image, k=3)  # rotate 270 degrees
+
+        return input_image
 
     def image_resizing(self, image):
         pass
 
     def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
-        # input_image = self.image_augmentation(input_image)
+        ºinput_image = self.image_augmentation(input_image)
         # input_image = self.image_resizing(input_image)
         input_image = self.normalize(input_image)
         return input_image, label
