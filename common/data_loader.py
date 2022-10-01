@@ -5,12 +5,16 @@ import pandas as pd
 import tensorflow as tf
 
 from zipfile import ZipFile
+
+from matplotlib import pyplot as plt
 from yaml.loader import SafeLoader
 from common.GoogleDrive import download_from_drive
 
 
 class DataLoader:
+
     def __init__(self):
+
         """
         DataLoader Class
         Downloads and unzips dataset
@@ -100,10 +104,6 @@ class DataLoader:
 
         return image
 
-    # Normalizing the images to [-1, 1]
-    def normalize(self, image):
-        image = (image / 127.5) - 1
-        return image
 
     @tf.function()
     def image_augmentation(self, input_image):
@@ -144,3 +144,14 @@ class DataLoader:
         # input_image = self.image_resizing(input_image)
         # input_image = self.normalize(input_image)
         return input_image, label
+
+
+if __name__ == "__main__":
+
+    DL = DataLoader()
+    train_dataset = DL.get_data("train")
+    test_dataset = DL.get_data("test")
+
+    for image, label in train_dataset.take(10):
+        plt.imshow(image[0])
+        plt.show()
