@@ -6,3 +6,4 @@ image_channels: 3
 seed: 42
 lower: -10
 upper: 10
+model: akselnet
