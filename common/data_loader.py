@@ -136,11 +136,11 @@ class DataLoader:
         input_image = self.load_image_from_path(image_file)
         ºinput_image = self.image_augmentation(input_image)
         # input_image = self.image_resizing(input_image)
-        input_image = self.normalize(input_image)
+        # input_image = self.normalize(input_image)
         return input_image, label
 
     def load_image_test_or_val(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
         # input_image = self.image_resizing(input_image)
-        input_image = self.normalize(input_image)
+        # input_image = self.normalize(input_image)
         return input_image, label
