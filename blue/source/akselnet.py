@@ -1,10 +1,9 @@
 import tensorflow as tf
 from keras import Sequential
 from keras.layers import Dense, Dropout
+from common.utils import get_config
 
-from blue.source.main import config
-
-
+config = get_config()
 def get_akselnet():
     akselnet = config['models']['akselnet']
     pretrained_model = tf.keras.applications.DenseNet121(

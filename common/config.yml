@@ -12,3 +12,4 @@ models:
     input_shape: [ 256, 256, 3 ]
 tensorboard:
   log_dir: logs
+model_dir: models

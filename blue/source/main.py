@@ -1,5 +1,9 @@
+
+from time import time
+from datetime import datetime
+from numpy import save
 import tensorflow as tf
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
 import os
 
 from blue.source.akselnet import get_akselnet
@@ -24,10 +28,11 @@ if __name__ == "__main__":
 
     early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
     # mm-dd-hh-mm-config['model_name']
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=os.path.join(config['tensorboard']['log_dir'], 'akselnet'))
+    tensorboard_callback = TensorBoard(log_dir=os.path.join(config['tensorboard']['log_dir'],'akselnet', datetime.now().strftime('%Y-%m-%d %H-%M-%S')))
+    save_model_callback = ModelCheckpoint(filepath=os.path.join(config['model_dir']), monitor="val_accuracy", save_best_only= True)
 
     model.fit(x=train_ds,
               batch_size=config['batch_size'],
               validation_data=test_ds,
-              epochs=5,
-              callbacks=[early_stopping_callback])
+              epochs=1,
+              callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback])
