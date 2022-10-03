@@ -83,7 +83,7 @@ class DataLoader:
 
         path = "data/real-vs-fake/"
 
-        df = self.read_labels(labels_path, self.limit)
+        df = self.read_labels(labels_path, limit=self.limit)
         df = df.sample(frac=1, random_state=self.seed)
 
         images = df["path"].values
