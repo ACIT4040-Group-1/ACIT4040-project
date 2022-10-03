@@ -3,6 +3,7 @@ from skimage.transform import resize
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.inception_v3 import preprocess_input
 from scipy.linalg import sqrtm
+from math import floor
 
 
 def scale_images(images, new_shape):
@@ -55,4 +56,41 @@ def calculate_fid(images1: np.array, images2: np.array, input_shape=(299, 299, 3
     return fid
 
 
+def calculate_inception_score(images: np.array, n_splits=10, eps=1E-16, input_shape=(299, 299, 3)):
+    """
+    Inception Score, as implemented by Jason Brownlee, 08.28.19.
+    https://machinelearningmastery.com/how-to-implement-the-inception-score-from-scratch-for-evaluating-generated-images/
+    :param images: Array of fake images
+    :param n_splits: Number of splits of the data
+    :param eps: Epsilon
+    :param input_shape: Input shape of images to the Inception model. Keep default for now
+    :return: Inception score mean and standard deviation.
+    """
+    model = InceptionV3()
+
+    images = images.astype('float32')
+    images = scale_images(images, input_shape)
+    images = preprocess_input(images)
+
+    y_hat = model.predict(images)
+    scores = list()
+    n_part = floor(images.shape[0] / n_splits)
+
+    for i in range(n_splits):
+        ix_start, ix_end = i * n_part, i * n_part + n_part
+        p_yx = y_hat[ix_start:ix_end]
+        p_y = np.expand_dims(p_yx.mean(axis=0), 0)
+        kl_d = p_yx * (np.log(p_yx + eps) - np.log(p_y + eps))
+        sum_kl_d = kl_d.sum(axis=1)
+        avg_kl_d = np.mean(sum_kl_d)
+        is_score = np.exp(avg_kl_d)
+        scores.append(is_score)
+
+    is_avg = np.mean(scores)
+    is_std = np.std(scores)
+
+    return is_avg, is_std
+
+
 if __name__ == "__main__":
+    pass
