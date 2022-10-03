@@ -12,7 +12,6 @@ from common.GoogleDrive import download_from_drive
 
 
 class DataLoader:
-
     def __init__(self):
 
         """
@@ -48,6 +47,9 @@ class DataLoader:
             else self.config["buffer_size"]
         )
 
+        self.limit = self.config["limit"]
+        self.seed = self.config["seed"]
+
     def check_if_datasets_are_downloaded(self):
         for path, url in self.paths:
             if not os.path.exists(path):
@@ -64,35 +66,32 @@ class DataLoader:
                 with ZipFile(zip_file, "r") as zipObj:
                     zipObj.extractall(data_path)
 
-    def read_labels(self, labels_path):
-        return pd.read_csv(labels_path)
+    def read_labels(self, labels_path, limit=None):
+        return pd.read_csv(labels_path, nrows=limit)
 
     def get_data(self, name="train"):
         match name:
             case "train":
-                path = "data/real-vs-fake/train/"
                 labels_path = "data/train.csv"
                 load = self.load_image_train
             case "test":
-                path = "data/real-vs-fake/test/"
                 labels_path = "data/test.csv"
                 load = self.load_image_test_or_val
             case "valid":
-                path = "data/real-vs-fake/valid/"
                 labels_path = "data/valid.csv"
                 load = self.load_image_test_or_val
 
-        df = self.read_labels(labels_path)
+        path = "data/real-vs-fake/"
 
-        labels = []
-        for image in (images := os.listdir(path)):
-            labels.append(df.loc[df.id == image.split(".")[0]].label.values[0])
+        df = self.read_labels(labels_path, limit=self.limit)
+        df = df.sample(frac=1, random_state=self.seed)
 
+        images = df["path"].values
         images = [path + image for image in images]
+        labels = df["label"].values
 
         dataset = tf.data.Dataset.from_tensor_slices((images, labels))
         dataset = dataset.map(load, num_parallel_calls=tf.data.AUTOTUNE)
-        dataset = dataset.shuffle(self.buffer_size)
         dataset = dataset.batch(self.batch_size)
 
         return dataset
@@ -103,7 +102,6 @@ class DataLoader:
         image = tf.image.convert_image_dtype(image, tf.float32)
 
         return image
-
 
     @tf.function()
     def image_augmentation(self, input_image):

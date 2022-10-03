@@ -7,3 +7,4 @@ seed: 42
 lower: -10
 upper: 10
 model: akselnet
+limit: null
