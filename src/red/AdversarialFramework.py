@@ -23,24 +23,28 @@ class AdversarialFramework:
         if not attack_method:
             raise Exception(f'Method {method} is not supported yet')
 
+        # Create directory for new images
+        if not os.path.exists(f'red/adversarial_images/{method}'):
+            os.mkdir(f'red/adversarial_images/{method}')
+
         number_of_images = len(images)
         adversarial_images = []
 
-        print(f'Applying method {method}..')
+        print(f'\n Applying method {method}..')
         for step, (image, label) in tqdm(enumerate(images)):
             if step >= number_of_images:
                 break
 
             adversarial_image = attack_method(image, label)
-            adversarial_images.append(adversarial_image)
 
-        if not os.path.exists(f'adversarial_images/{method}'):
-            os.mkdir(f'adversarial_images/{method}')
+            # Save image
+            img = Image.fromarray(adversarial_image, mode='RGB')
+            img.save(f'red/adversarial_images/{method}{step}.jpg')
 
         return adversarial_images
 
     def evaluate_model(self, images):
-        print('Evaluation model..')
+        print('\n Evaluating model..')
         predictions = self.model.predict(images)
         real_labels = images.classes
 
@@ -68,7 +72,7 @@ class AdversarialFramework:
         roc_auc_score = metrics.roc_auc_score(real_labels, predictions)
         ap_score = metrics.average_precision_score(real_labels, predictions)
 
-        print('RESULTS: ')
+        print('\n RESULTS: ')
         print('Number of images: ', len(predictions))
         print(f'ROC AUC Score: {roc_auc_score}')
         print(f'AP Score: {ap_score}')
@@ -79,7 +83,6 @@ class AdversarialFramework:
         # print(metrics.classification_report(y_test, y_pred > 0.5))
 
     def fast_gradient_signed_method(self, image, label, eps=2 / 255.0):
-        # cast the image
         image = tf.cast(image, tf.float32)
 
         with tf.GradientTape() as tape:
@@ -98,4 +101,4 @@ class AdversarialFramework:
             # construct the image adversary
             adversary = (image + (signed_gradient * eps)).numpy()
             # return the image adversary to the calling function
-            return adversary
+            return adversary[0]
