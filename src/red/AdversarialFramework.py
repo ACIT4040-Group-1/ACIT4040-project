@@ -26,25 +26,32 @@ class AdversarialFramework:
         # Create directory for new images
         if not os.path.exists(f'red/adversarial_images/{method}'):
             os.mkdir(f'red/adversarial_images/{method}')
+            os.mkdir(f'red/adversarial_images/{method}/real')
+            os.mkdir(f'red/adversarial_images/{method}/fake')
 
         number_of_images = len(images)
         adversarial_images = []
 
-        print(f'\n Applying method {method}..')
+        print(f'Applying method {method}..')
         for step, (image, label) in tqdm(enumerate(images)):
             if step >= number_of_images:
                 break
 
             adversarial_image = attack_method(image, label)
 
+            real_image = True if label == [1.] else False
+
             # Save image
             img = Image.fromarray(adversarial_image, mode='RGB')
-            img.save(f'red/adversarial_images/{method}{step}.jpg')
+            if real_image:
+                img.save(f'red/adversarial_images/{method}/real/{step}.jpg')
+            else:
+                img.save(f'red/adversarial_images/{method}/fake/{step}.jpg')
 
         return adversarial_images
 
     def evaluate_model(self, images):
-        print('\n Evaluating model..')
+        print('Evaluating model..')
         predictions = self.model.predict(images)
         real_labels = images.classes
 
