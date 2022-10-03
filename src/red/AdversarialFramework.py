@@ -1,5 +1,8 @@
 import json
+import os
 
+import numpy as np
+from PIL import Image
 from keras.losses import MSE
 from sklearn import metrics
 import tensorflow as tf
@@ -7,11 +10,10 @@ from tqdm import tqdm
 
 
 class AdversarialFramework:
-    def __init__(self, model, images):
+    def __init__(self, model):
         self.model = model
-        self.images = images
 
-    def apply_attack(self, method):
+    def apply_attack(self, method, images):
         methods = {
             'FSGM': self.fast_gradient_signed_method,
         }
@@ -21,23 +23,26 @@ class AdversarialFramework:
         if not attack_method:
             raise Exception(f'Method {method} is not supported yet')
 
-        number_of_images = len(self.images)
+        number_of_images = len(images)
         adversarial_images = []
 
         print(f'Applying method {method}..')
-        for step, (image, label) in tqdm(enumerate(self.images)):
+        for step, (image, label) in tqdm(enumerate(images)):
             if step >= number_of_images:
                 break
 
             adversarial_image = attack_method(image, label)
             adversarial_images.append(adversarial_image)
 
-        self.images = adversarial_images
+        if not os.path.exists(f'adversarial_images/{method}'):
+            os.mkdir(f'adversarial_images/{method}')
 
-    def evaluate_model(self):
+        return adversarial_images
+
+    def evaluate_model(self, images):
         print('Evaluation model..')
-        predictions = self.model.predict(self.images)
-        real_labels = self.images.classes
+        predictions = self.model.predict(images)
+        real_labels = images.classes
 
         real_images, fake_images, classified, misclassified = 0, 0, 0, 0
 
