@@ -3,7 +3,7 @@ import yaml
 import pathlib
 import pandas as pd
 import tensorflow as tf
-
+import tensorboard
 from zipfile import ZipFile
 
 from matplotlib import pyplot as plt
@@ -133,7 +133,7 @@ class DataLoader:
     def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
         input_image = self.image_augmentation(input_image)
-        # input_image = self.image_resizing(input_image)
+        # input_image = self.image_resiz    ing(input_image)
         # input_image = self.normalize(input_image)
         return input_image, label
 
