@@ -13,3 +13,4 @@ models:
 tensorboard:
   log_dir: logs
 model_dir: models
+limit: 400

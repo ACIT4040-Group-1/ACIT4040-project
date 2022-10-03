@@ -20,10 +20,11 @@ def get_model():
 
 
 if __name__ == "__main__":
+    print("Loading data..")
     DL = DataLoader()
     train_ds = DL.get_data("train")
     test_ds = DL.get_data("test")
-
+    print("Loading comp.")
     model = get_model()
 
     early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
