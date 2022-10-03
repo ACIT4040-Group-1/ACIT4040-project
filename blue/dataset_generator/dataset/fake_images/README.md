@@ -1,1 +1,0 @@
-# Fake images created by StyleGAN3

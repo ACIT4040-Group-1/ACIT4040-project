@@ -1,0 +1,10 @@
+batch_size: 32
+buffer_size: 10
+image_height: 256
+image_width: 256
+image_channels: 3
+seed: 42
+lower: -10
+upper: 10
+model: akselnet
+limit: null
