@@ -21,28 +21,31 @@ def scale_images(images, new_shape):
     return np.asarray(new_images)
 
 
-def calculate_fid(images1: np.array, images2: np.array, input_shape=(299, 299, 3)) -> float:
+def calculate_fid(real_images: np.array, fake_images: np.array, input_shape=(299, 299, 3)) -> float:
     """
     Frechet Inception Distance, as implemented by Jason Brownlee, 08.30.19.
     https://machinelearningmastery.com/how-to-implement-the-frechet-inception-distance-fid-from-scratch/
-    :param images1: Array of real images
-    :param images2: Array of fake images
+
+    Lower score is better.
+
+    :param real_images: Array of real images
+    :param fake_images: Array of fake images
     :param input_shape: Input shape of images to the Inception model. Keep default for now
     :return: FID evaluation metric
     """
     model = InceptionV3(include_top=False, pooling='avg', input_shape=input_shape)
 
-    images1 = images1.astype('float32')
-    images2 = images1.astype('float32')
+    real_images = real_images.astype('float32')
+    fake_images = real_images.astype('float32')
 
-    images1 = scale_images(images1, input_shape)
-    images2 = scale_images(images2, input_shape)
+    real_images = scale_images(real_images, input_shape)
+    fake_images = scale_images(fake_images, input_shape)
 
-    images1 = preprocess_input(images1)
-    images2 = preprocess_input(images2)
+    real_images = preprocess_input(real_images)
+    fake_images = preprocess_input(fake_images)
 
-    act1 = model.predict(images1)
-    act2 = model.predict(images2)
+    act1 = model.predict(real_images)
+    act2 = model.predict(fake_images)
 
     mean1, sigma1 = act1.mean(axis=0), np.cov(act1, rowvar=False)
     mean2, sigma2 = act2.mean(axis=0), np.cov(act2, rowvar=False)
@@ -56,10 +59,13 @@ def calculate_fid(images1: np.array, images2: np.array, input_shape=(299, 299, 3
     return fid
 
 
-def calculate_inception_score(images: np.array, n_splits=10, eps=1E-16, input_shape=(299, 299, 3)):
+def calculate_inception_score(images: np.array, n_splits=10, eps=1E-16, input_shape=(299, 299, 3)) -> (float, float):
     """
     Inception Score, as implemented by Jason Brownlee, 08.28.19.
     https://machinelearningmastery.com/how-to-implement-the-inception-score-from-scratch-for-evaluating-generated-images/
+
+    Higher score is better.
+
     :param images: Array of fake images
     :param n_splits: Number of splits of the data
     :param eps: Epsilon
