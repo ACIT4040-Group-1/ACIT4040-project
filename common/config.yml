@@ -13,6 +13,5 @@ models:
   stiannet:
 
 tensorboard:
-  log_dir: logs
-model_dir: models
-limit: null
+  log_dir: logs #also de directory for the best models
+limit: 100

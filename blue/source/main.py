@@ -12,7 +12,7 @@ import io
 
 from blue.source.akselnet import get_akselnet
 from common.data_loader import DataLoader
-from common.utils import get_config
+from common.utils import get_config,copy_config
 import matplotlib
 from matplotlib import pyplot as plt
 matplotlib.use('TkAgg')
@@ -27,13 +27,16 @@ def get_model():
 
 
 log_dir = os.path.join(config['tensorboard']['log_dir'],'akselnet', datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
+model_dir = os.path.join(log_dir, 'best_model')
+
+#loading data
 print("Loading data..")
 DL = DataLoader()
 train_ds = DL.get_data("train")
 test_ds = DL.get_data("test")
 val_ds = DL.get_data("valid")
-val_labels = np.concatenate([y for x, y in test_ds], axis=0)
-class_names = ["False", "True"]
+val_labels = np.concatenate([y for x, y in val_ds], axis=0)
+class_names = [0, 1]
 print("Loading comp.")
 
 
@@ -71,7 +74,8 @@ def log_confusion_matrix(epoch, logs):
     # Use the model to predict the values from the validation dataset.
     test_pred_raw = model.predict(val_ds)
     test_pred = np.argmax(test_pred_raw, axis=1)
-    print(f"shape test_pre {test_pred.shape}")
+    print(f"shape val_pred {test_pred.shape}")
+    print(f"shape val_labels {val_labels.shape}")
 
     # Calculate the confusion matrix.
     cm = sklearn.metrics.confusion_matrix(y_true=val_labels, y_pred=test_pred, labels=class_names)
@@ -109,10 +113,11 @@ if __name__ == "__main__":
     early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
     # mm-dd-hh-mm-config['model_name']
     tensorboard_callback = TensorBoard(log_dir=log_dir)
-    save_model_callback = ModelCheckpoint(filepath=os.path.join(config['model_dir']), monitor="val_accuracy", save_best_only= True)
+    save_model_callback = ModelCheckpoint(filepath=os.path.join(model_dir), monitor="val_accuracy", save_best_only= True)
 
     model.fit(x=train_ds,
               batch_size=config['batch_size'],
               validation_data=test_ds,
               epochs=1,
               callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback, cm_callback])
+    copy_config(log_dir)
