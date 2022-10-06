@@ -1,4 +1,5 @@
-batch_size: 32
+#Dataloader
+batch_size: 10
 buffer_size: 10
 image_height: 256
 image_width: 256
@@ -6,12 +7,15 @@ image_channels: 3
 seed: 42
 lower: -10
 upper: 10
+limit: 100 #set null if for limitations
+
+#ModelSpesifications
 model_name: akselnet
 models:
   akselnet:
     input_shape: [ 256, 256, 3 ]
   stiannet:
 
+#Logs and model storage
 tensorboard:
   log_dir: logs #also de directory for the best models
-limit: 100
