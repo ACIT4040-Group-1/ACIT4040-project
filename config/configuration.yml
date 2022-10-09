@@ -1,5 +1,5 @@
-batch_size: 32
-buffer_size: 10
+batch_size: 64
+buffer_size: null
 image_height: 256
 image_width: 256
 image_channels: 3
