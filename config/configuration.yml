@@ -1,14 +1,14 @@
 
 #Dataloader
-batch_size: 10
-buffer_size: 10
+batch_size: 64
+buffer_size: null
 image_height: 256
 image_width: 256
 image_channels: 3
 seed: 42
 lower: -10
 upper: 10
-limit: 100 #set null if for limitations
+limit: 10000 #set null if for limitations
 
 #ModelSpesifications
 model_name: akselnet
