@@ -24,7 +24,7 @@ class DataLoader:
         self.paths = [
             (
                 "data/real-vs-fake.zip",
-                "https://drive.google.com/file/d/19T-ftY1EuYizoCShITz2n1i_pLeYa0Gl/view?usp=sharing",
+                "https://drive.google.com/file/d/1mlYAcWcdL5UwZ6MuPTdazsN85bV924zl/view?usp=sharing",
             )
         ]
 
@@ -33,19 +33,13 @@ class DataLoader:
 
         self.batch_size = config["batch_size"]
 
-        self.buffer_size = (
-            self.batch_size
-            if config["buffer_size"] is None
-            else config["buffer_size"]
-        )
-
         self.limit = config["limit"]
         self.seed = config["seed"]
 
     def check_if_datasets_are_downloaded(self):
         for path, url in self.paths:
             if not os.path.exists(path):
-                print('Could not find dataset on local machine. Downloading..')
+                print("Could not find dataset on local machine. Downloading..")
                 download_from_drive(path, url)  # assume all zips will be in drive
 
     def check_if_datasets_are_unzipped(self):
@@ -74,16 +68,12 @@ class DataLoader:
                 labels_path = "data/valid.csv"
                 load = self.load_image_test_or_val
 
-        path = "data/real-vs-fake/"
-
         df = self.read_labels(labels_path, limit=self.limit)
         df = df.sample(frac=1, random_state=self.seed)
 
-        images = df["path"].values
-        images = [path + image for image in images]
-        labels = df["label"].values
-
-        dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+        dataset = tf.data.Dataset.from_tensor_slices(
+            (df["path"].values, df["label"].values)
+        )
         dataset = dataset.map(load, num_parallel_calls=tf.data.AUTOTUNE)
         dataset = dataset.batch(self.batch_size)
 
