@@ -1,10 +1,13 @@
 /venv/
-idea
+.idea
+.env
 /data/*
+data*
 /.vscode/
 __pycache__/*
 common/__pycache__/*
 red/__pycache__/*
 blue/__pycache__/*
-.idea
-.idea/
+/logs*
+/models*
+test.ipynb
