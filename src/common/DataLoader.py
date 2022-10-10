@@ -68,13 +68,18 @@ class DataLoader:
                 labels_path = "data/valid.csv"
                 load = self.load_image_test_or_val
 
-        df = self.read_labels(labels_path, limit=self.limit)
+        df = self.read_labels(labels_path)
         df = df.sample(frac=1, random_state=self.seed)
+
+        if self.limit is not None:
+            n_samples = int((df.shape[0] * self.limit) / 100)
+            df = df.head(n=n_samples - 1)
 
         dataset = tf.data.Dataset.from_tensor_slices(
             (df["path"].values, df["label"].values)
         )
         dataset = dataset.map(load, num_parallel_calls=tf.data.AUTOTUNE)
+        # dataset = dataset.shuffle(buffer_size=self.batch_size)
         dataset = dataset.batch(self.batch_size)
 
         return dataset
@@ -115,7 +120,7 @@ class DataLoader:
 
     def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
-        input_image = self.image_augmentation(input_image)
+        # input_image = self.image_augmentation(input_image)
         # input_image = self.image_resizing(input_image)
         # input_image = self.normalize(input_image)
         return input_image, label
