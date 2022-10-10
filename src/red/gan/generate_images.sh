@@ -13,7 +13,6 @@ module load anaconda3/x86_64/2022.05
 
 source activate /home/"$USER"/.conda/envs/stylegan3
 
-echo "Enter number of images"
-read n_images
+n_images=10 #Change this value to your desired number of images
 
 srun python stylegan3/gen_images.py --outdir="generated_images" --seeds="0-$n_images" --network="https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/stylegan3-t-ffhq-1024x1024.pkl"
