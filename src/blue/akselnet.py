@@ -19,7 +19,8 @@ def get_akselnet():
     model.add(Dropout(0.5))
     model.add(Dense(units=1, activation='sigmoid'))
     optimizer = tf.keras.optimizers.Adam()
+
     model.compile(optimizer=optimizer,
-                  loss='binary_crossentropy',
-                  metrics='accuracy')
+                  loss=akselnet['loss'],
+                  metrics=akselnet['metrics'])
     return model
