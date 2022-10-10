@@ -8,7 +8,7 @@ import sklearn.metrics
 import itertools
 import io
 
-from src.blue.akselnet import get_akselnet
+from src.blue import modelCompiler
 from src.common.DataLoader import DataLoader
 from src.common.utils import get_config, copy_config
 import matplotlib
@@ -20,11 +20,14 @@ config = get_config()
 
 def get_model():
     match config['model_name']:
+        case 'example_net':
+            return modelCompiler.get_exampleNet()
         case 'akselnet':
-            return get_akselnet()
+            return modelCompiler.get_akselnet()
 
 
-log_dir = os.path.join(config['tensorboard']['log_dir'],'akselnet', datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
+
+log_dir = os.path.join(config['tensorboard']['log_dir'],config['model_name'], datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
 model_dir = os.path.join(log_dir, 'best_model')
 
 #loading data
@@ -72,8 +75,8 @@ def log_confusion_matrix(epoch, logs):
     # Use the model to predict the values from the validation dataset.
     test_pred_raw = model.predict(val_ds)
     test_pred = np.argmax(test_pred_raw, axis=1)
-    print(f"shape val_pred {test_pred.shape}")
-    print(f"shape val_labels {val_labels.shape}")
+    #print(f"shape val_pred {test_pred.shape}")
+    #print(f"shape val_labels {val_labels.shape}")
 
     # Calculate the confusion matrix.
     cm = sklearn.metrics.confusion_matrix(y_true=val_labels, y_pred=test_pred, labels=class_names)
@@ -108,7 +111,7 @@ if __name__ == "__main__":
 
     model = get_model()
 
-    early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
+    early_stopping_callback = EarlyStopping(monitor='binary_accuracy', patience=5)
     # mm-dd-hh-mm-config['model_name']
     tensorboard_callback = TensorBoard(log_dir=log_dir)
     save_model_callback = ModelCheckpoint(filepath=os.path.join(model_dir), monitor="val_accuracy", save_best_only= True)
@@ -116,6 +119,6 @@ if __name__ == "__main__":
     model.fit(x=train_ds,
               batch_size=config['batch_size'],
               validation_data=test_ds,
-              epochs=1,
+              epochs=20,
               callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback, cm_callback])
     copy_config(log_dir)
