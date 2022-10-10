@@ -72,8 +72,8 @@ def log_confusion_matrix(epoch, logs):
     # Use the model to predict the values from the validation dataset.
     test_pred_raw = model.predict(val_ds)
     test_pred = np.argmax(test_pred_raw, axis=1)
-    print(f"shape val_pred {test_pred.shape}")
-    print(f"shape val_labels {val_labels.shape}")
+    #print(f"shape val_pred {test_pred.shape}")
+    #print(f"shape val_labels {val_labels.shape}")
 
     # Calculate the confusion matrix.
     cm = sklearn.metrics.confusion_matrix(y_true=val_labels, y_pred=test_pred, labels=class_names)
