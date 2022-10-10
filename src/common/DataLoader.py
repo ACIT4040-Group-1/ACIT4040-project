@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from yaml.loader import SafeLoader
 
 from config import config
-from src.common.GoogleDrive import download_from_drive
+from src.common.utils import download_from_drive
 
 
 class DataLoader:

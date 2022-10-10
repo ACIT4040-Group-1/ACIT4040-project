@@ -15,3 +15,7 @@ def copy_config(destination_dir):
 
 if __name__ == "__main__":
     get_config()
+
+
+def download_from_drive(destination, url):
+    gdown.download(url, destination, quiet=False, fuzzy=True)
