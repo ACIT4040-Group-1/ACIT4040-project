@@ -12,3 +12,7 @@ blue/__pycache__/*
 /logs*
 /models*
 test.ipynb
+src/red/gan/generated_images/*.png
+*.err
+*.out
+src/red/gan/stylegan3/
