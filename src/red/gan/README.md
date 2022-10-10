@@ -6,3 +6,5 @@
 sbatch setup_stylegan3.sh
 ```
 
+# How to use:
+## 
