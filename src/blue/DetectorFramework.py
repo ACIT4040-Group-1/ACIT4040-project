@@ -8,7 +8,7 @@ import sklearn.metrics
 import itertools
 import io
 
-from src.blue.akselnet import get_akselnet
+from src.blue import modelCompiler
 from src.common.DataLoader import DataLoader
 from src.common.utils import get_config, copy_config
 import matplotlib
@@ -20,11 +20,14 @@ config = get_config()
 
 def get_model():
     match config['model_name']:
+        case 'example_net':
+            return modelCompiler.get_exampleNet()
         case 'akselnet':
-            return get_akselnet()
+            return modelCompiler.get_akselnet()
 
 
-log_dir = os.path.join(config['tensorboard']['log_dir'],'akselnet', datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
+
+log_dir = os.path.join(config['tensorboard']['log_dir'],config['model_name'], datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
 model_dir = os.path.join(log_dir, 'best_model')
 
 #loading data
