@@ -4,8 +4,8 @@
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --time=03-23:00
-#SBATCH -o output/slurm.stylegan3.%j.%N.out # STDOUT
-#SBATCH -e output/slurm.stylegan3.%j.%N.err # STDERR
+#SBATCH -o slurm_output/slurm.stylegan3.%j.%N.out # STDOUT
+#SBATCH -e slurm_output/slurm.stylegan3.%j.%N.err # STDERR
 module purge
 module use /cm/shared/ex3-modules/latest/modulefiles
 module load slurm/20.02.7
