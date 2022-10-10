@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     model = get_model()
 
-    early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
+    early_stopping_callback = EarlyStopping(monitor='binary_accuracy', patience=5)
     # mm-dd-hh-mm-config['model_name']
     tensorboard_callback = TensorBoard(log_dir=log_dir)
     save_model_callback = ModelCheckpoint(filepath=os.path.join(model_dir), monitor="val_accuracy", save_best_only= True)
@@ -116,6 +116,6 @@ if __name__ == "__main__":
     model.fit(x=train_ds,
               batch_size=config['batch_size'],
               validation_data=test_ds,
-              epochs=1,
+              epochs=20,
               callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback, cm_callback])
     copy_config(log_dir)
