@@ -1,6 +1,8 @@
 import tensorflow as tf
 from keras import Sequential
-from keras.layers import Dense, Dropout
+import quality_feature_iqm as iqm
+import quality_feature_iqa as iqa
+from keras.layers import Dense, Dropout, activation
 from src.common.utils import get_config
 
 config = get_config()
@@ -48,3 +50,22 @@ def get_akselnet():
                   metrics=net_config['metrics'])
     return model
 
+def get_syedanet():
+    net_config = config['model']['syedanet']
+    features = iqa.compute_msu_iqa_features() + iqm.compute_quality_features()
+    model = Sequential()
+    model.add(features)
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(1), kernel_regularizer='l2',activation='linear')
+    optimizer = tf.keras.optimizers.Adam()
+    print(net_config['loss'])
+    print(net_config['metrics'])
+    model.compile(optimizer = optimizer, loss = net_config['loss'], metrics = net_config['metrics'])
+    return model
+
+
+def get_syedasvcnet():
+    net_config = config['model']['syedasvcnet']
+    features = iqa.compute_msu_iqa_features() + iqm.compute_quality_features()
+    svc = svm.SVC(C = [2**P for P in range(-3, 14, 2)], kernel =  'rbf')
+    clf = svc.fit(dataX, DataY) # svm

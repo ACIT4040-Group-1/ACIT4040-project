@@ -22,6 +22,11 @@ models:
     loss: "binary_crossentropy"
     metrics: "binary_accuracy"
 
+  syedanet:
+    input_shape: [3, 256, 256]
+    loss: "hinge"
+    metrics: "binary-accuracy"
+
 #Logs and model storage
 tensorboard:
   log_dir: logs #also de directory for the best models

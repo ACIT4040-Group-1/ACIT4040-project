@@ -24,7 +24,8 @@ def get_model():
             return modelCompiler.get_exampleNet()
         case 'akselnet':
             return modelCompiler.get_akselnet()
-
+        case 'syedanet':
+            return modelCompiler.get_syedanet()
 
 
 log_dir = os.path.join(config['tensorboard']['log_dir'],config['model_name'], datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
