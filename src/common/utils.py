@@ -1,7 +1,7 @@
 import yaml
 from yaml.loader import SafeLoader
 import shutil
-
+import gdown
 
 def get_config():
     with open('config/configuration.yml') as f:

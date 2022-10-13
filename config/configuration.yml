@@ -7,7 +7,7 @@ image_channels: 3
 seed: 42
 lower: -10
 upper: 10
-limit: 0.1 #set null if for limitations, is a percentage on how many to use
+limit:  #set null if for limitations, is a percentage on how many to use
 
 #ModelSpesifications
 model_name: "akselnet"
@@ -15,12 +15,12 @@ models:
   exampleNet:
     input_shape: [265, 256, 3]
     loss: "binary_crossentropy"
-    metrics: "binary_accuracy"
+    metrics: "accuracy"
 
   akselnet:
-    input_shape: [256, 256, 3]
+    input_shape: [224, 224, 3]
     loss: "binary_crossentropy"
-    metrics: "binary_accuracy"
+    metrics: "accuracy"
 
 #Logs and model storage
 tensorboard:

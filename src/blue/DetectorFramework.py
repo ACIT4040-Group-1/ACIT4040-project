@@ -8,14 +8,15 @@ import sklearn.metrics
 import itertools
 import io
 
+from keras_preprocessing.image import ImageDataGenerator
+
+from config import config
 from src.blue import modelCompiler
 from src.common.DataLoader import DataLoader
-from src.common.utils import get_config, copy_config
+from src.common.utils import copy_config
 import matplotlib
 from matplotlib import pyplot as plt
 matplotlib.use('TkAgg')
-
-config = get_config()
 
 
 def get_model():
@@ -30,15 +31,15 @@ def get_model():
 log_dir = os.path.join(config['tensorboard']['log_dir'],config['model_name'], datetime.now().strftime('%Y-%m-%d %H-%M-%S'))
 model_dir = os.path.join(log_dir, 'best_model')
 
-#loading data
-print("Loading data..")
+##loading data
+#print("Loading data..")
 DL = DataLoader()
 train_ds = DL.get_data("train")
 test_ds = DL.get_data("test")
 val_ds = DL.get_data("valid")
 val_labels = np.concatenate([y for x, y in val_ds], axis=0)
 class_names = [0, 1]
-print("Loading comp.")
+#print("Loading comp.")
 
 
 def plot_confusion_matrix(cm, class_names):
@@ -74,7 +75,7 @@ def plot_confusion_matrix(cm, class_names):
 def log_confusion_matrix(epoch, logs):
     # Use the model to predict the values from the validation dataset.
     test_pred_raw = model.predict(val_ds)
-    test_pred = np.argmax(test_pred_raw, axis=1)
+    test_pred = np.round(test_pred_raw)
     #print(f"shape val_pred {test_pred.shape}")
     #print(f"shape val_labels {val_labels.shape}")
 
@@ -104,21 +105,31 @@ def plot_to_image(figure):
     image = tf.expand_dims(image, 0)
     return image
 # Define the per-epoch callback.
-cm_callback = keras.callbacks.LambdaCallback(on_epoch_end=log_confusion_matrix)
-file_writer_cm = tf.summary.create_file_writer(log_dir + '/cm')
+
 
 if __name__ == "__main__":
 
     model = get_model()
-
-    early_stopping_callback = EarlyStopping(monitor='binary_accuracy', patience=5)
+    #callbacks
+    cm_callback = keras.callbacks.LambdaCallback(on_epoch_end=log_confusion_matrix)
+    file_writer_cm = tf.summary.create_file_writer(log_dir + '/cm')
+    early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
     # mm-dd-hh-mm-config['model_name']
     tensorboard_callback = TensorBoard(log_dir=log_dir)
     save_model_callback = ModelCheckpoint(filepath=os.path.join(model_dir), monitor="val_accuracy", save_best_only= True)
 
-    model.fit(x=train_ds,
-              batch_size=config['batch_size'],
-              validation_data=test_ds,
-              epochs=20,
-              callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback, cm_callback])
+    # image_gen = ImageDataGenerator(rescale=1. / 255.)
+    # valid_images = image_gen.flow_from_directory('training_data/valid', target_size=(224, 224), batch_size=1,
+    #                                              class_mode='binary')
+    #
+    # image_gen = ImageDataGenerator(rescale=1. / 255.)
+    # train_images = image_gen.flow_from_directory('training_data/train', target_size=(224, 224), batch_size=1,
+    #                                              class_mode='binary')
+
     copy_config(log_dir)
+    model.fit(x=train_ds,
+              batch_size=256,
+              validation_data=test_ds,
+              epochs=25,
+              callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback,cm_callback])
+
