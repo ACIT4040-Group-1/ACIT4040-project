@@ -5,13 +5,13 @@ from tensorflow.keras.utils import plot_model
 import tensorflow.keras.backend as K
 from tensorflow.keras.regularizers import l2
 
-import sys
-sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\src\\common')
-sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\src')
-sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\config')
-print(sys.path)
-from DataLoader import  DataLoader
-from utils import get_config, copy_config
+#import sys
+#sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\src\\common')
+#sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\src')
+#sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\config')
+#print(sys.path)
+from src.common.DataLoader import  DataLoader
+from src.common.utils import get_config, copy_config
 
 class ConvBlocks:
     @staticmethod
