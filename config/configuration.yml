@@ -10,7 +10,7 @@ upper: 10
 limit: 0.1 #set null if for limitations, is a percentage on how many to use
 
 #ModelSpesifications
-model_name: "akselnet"
+model_name: "syedanet"
 models:
   exampleNet:
     input_shape: [265, 256, 3]
@@ -27,10 +27,7 @@ models:
     loss: "hinge"
     metrics: "binary-accuracy"
 
-  syedasvcnet:
-    input_shape: [3, 256, 256]
-    loss: ""
-    metrics:
+
 
 #Logs and model storage
 tensorboard:

@@ -434,10 +434,11 @@ def compute_msu_iqa_features(rgbImage):
         on Information Forensics and Security, vol. 10(4), pp. 746-761, April
         2015.
     """
-    rgbImage = rgbImage.copy()
+    print(rgbImage.shape)
+    ## changing image channel to first##
     rgbImage = moveaxis(rgbImage, 2, 0)
 
-    print(rgbImage.shape)
+    #print(rgbImage.shape)
 
     assert len(
         rgbImage.shape) == 3, 'compute_msu_iqa_features():: image should be ' \

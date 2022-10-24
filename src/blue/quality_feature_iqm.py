@@ -1,7 +1,7 @@
 
 import scipy
 import scipy.signal as ssg
-import scipy.ndimage as snf 
+import scipy.ndimage as snf
 import numpy as np
 
 
@@ -50,6 +50,8 @@ def compute_quality_features(image):
         Iris, Fingerprint, and Face Recognition", IEEE Trans. on Image
         Processing Vol 23(2), 2014.
     """
+    # changing input channel to first##
+    image = moveaxis(image, 2, 0)
     gray_image = None
     #print("shape of input image:")
     # print(image.shape)
