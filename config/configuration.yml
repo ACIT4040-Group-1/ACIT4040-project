@@ -27,6 +27,11 @@ models:
     loss: "hinge"
     metrics: "binary-accuracy"
 
+  syedasvcnet:
+    input_shape: [3, 256, 256]
+    loss: ""
+    metrics:
+
 #Logs and model storage
 tensorboard:
   log_dir: logs #also de directory for the best models

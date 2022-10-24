@@ -67,5 +67,5 @@ def get_syedanet():
 def get_syedasvcnet():
     net_config = config['model']['syedasvcnet']
     features = iqa.compute_msu_iqa_features() + iqm.compute_quality_features()
-    svc = svm.SVC(C = [2**P for P in range(-3, 14, 2)], kernel =  'rbf')
-    clf = svc.fit(dataX, DataY) # svm
+    #svc = svm.SVC(C = [2**P for P in range(-3, 14, 2)], kernel =  'rbf')
+    #clf = svc.fit(dataX, DataY) # svm
