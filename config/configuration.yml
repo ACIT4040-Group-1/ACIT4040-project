@@ -10,10 +10,15 @@ upper: 10
 limit:  #set null if for limitations, is a percentage on how many to use
 
 #ModelSpesifications
-model_name: "akselnet"
+model_name: "maryamnet"
 models:
   exampleNet:
     input_shape: [265, 256, 3]
+    loss: "binary_crossentropy"
+    metrics: "accuracy"
+
+  maryamnet:
+    input_shape: [ 224, 224, 3 ]
     loss: "binary_crossentropy"
     metrics: "accuracy"
 
@@ -25,3 +30,4 @@ models:
 #Logs and model storage
 tensorboard:
   log_dir: logs #also de directory for the best models
+

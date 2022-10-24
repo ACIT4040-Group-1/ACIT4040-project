@@ -25,6 +25,8 @@ def get_model():
             return modelCompiler.get_exampleNet()
         case 'akselnet':
             return modelCompiler.get_akselnet()
+        case 'maryamnet':
+            return modelCompiler.get_maryamnet()
 
 
 
