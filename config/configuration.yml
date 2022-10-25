@@ -7,7 +7,7 @@ image_channels: 3
 seed: 42
 lower: -10
 upper: 10
-limit:  1 #set null if for limitations, is a percentage on how many to use
+limit:  #set null if for limitations, is a percentage on how many to use
 
 #ModelSpesifications
 model_name: "maryamnet"
@@ -40,3 +40,4 @@ models:
 #Logs and model storage
 tensorboard:
   log_dir: logs #also de directory for the best models
+

@@ -7,9 +7,6 @@ import keras
 import sklearn.metrics
 import itertools
 import io
-
-from keras_preprocessing.image import ImageDataGenerator
-
 from config import config
 from src.blue import modelCompiler
 from src.common.DataLoader import DataLoader
@@ -32,6 +29,8 @@ def get_model():
             return modelCompiler.get_res_net50_detector()
         case 'resNet151_detector':
             return modelCompiler.get_res_net151_detector()
+        case 'maryamnet':
+            return modelCompiler.get_maryamnet()
 
 
 log_dir = os.path.join(config['tensorboard']['log_dir'], config['model_name'],
