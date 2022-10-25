@@ -1,0 +1,27 @@
+#Dataloader
+batch_size: 10
+buffer_size: null
+image_height: 256
+image_width: 256
+image_channels: 3
+seed: 42
+lower: -10
+upper: 10
+limit:  #set null if for limitations, is a percentage on how many to use
+
+#ModelSpesifications
+model_name: "akselnet"
+models:
+  exampleNet:
+    input_shape: [265, 256, 3]
+    loss: "binary_crossentropy"
+    metrics: "accuracy"
+
+  akselnet:
+    input_shape: [224, 224, 3]
+    loss: "binary_crossentropy"
+    metrics: "accuracy"
+
+#Logs and model storage
+tensorboard:
+  log_dir: logs #also de directory for the best models

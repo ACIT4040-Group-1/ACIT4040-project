@@ -16,3 +16,6 @@ src/red/gan/generated_images/*.png
 *.err
 *.out
 src/red/gan/stylegan3/
+playground.ipynb
+
+/src/blue/trained_models/

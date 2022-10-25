@@ -23,7 +23,7 @@ def get_model():
         model.add(Dense(128, activation='relu'))
         model.add(Dropout(rate=0.5))
 
-    model.add(Dense(1, activation='sigmoid'))
+    model.add(Dense(units=1, activation='sigmoid'))
 
     model.compile(optimizer=Adam(),
                   loss='binary_crossentropy',
