@@ -6,11 +6,11 @@ from tensorflow import keras
 
 if __name__ == '__main__':
     image_gen = ImageDataGenerator(rescale=1. / 255.)
-    valid_images = image_gen.flow_from_directory('red/training_data/valid', target_size=(224, 224), batch_size=1,
+    valid_images = image_gen.flow_from_directory('red/data/training_data/valid', target_size=(224, 224), batch_size=1,
                                                  class_mode='binary')
 
     image_gen = ImageDataGenerator(rescale=1. / 255.)
-    train_images = image_gen.flow_from_directory('red/training_data/train', target_size=(224, 224), batch_size=1,
+    train_images = image_gen.flow_from_directory('red/data/training_data/train', target_size=(224, 224), batch_size=1,
                                                  class_mode='binary')
     model = get_model()
     early_stopping_callback = keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=5)

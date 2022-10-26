@@ -1,36 +1,51 @@
-import json
 import os
-
+import shutil
 import numpy as np
-from PIL import Image
 from keras.losses import MSE
+from keras_preprocessing.image import ImageDataGenerator
+from matplotlib import pyplot as plt
 from sklearn import metrics
 import tensorflow as tf
 from tqdm import tqdm
+import matplotlib
+
+matplotlib.use('TkAgg')
 
 
 class AdversarialFramework:
     def __init__(self, model):
         self.model = model
 
-    def apply_attack(self, method, images):
+    def apply_attack(self, method, images=None, create_new_images=True):
         methods = {
-            'FSGM': self.fast_gradient_signed_method,
+            'FGSM': self.fast_gradient_signed_method,
         }
-
         attack_method = methods.get(method)
 
         if not attack_method:
             raise Exception(f'Method {method} is not supported yet')
 
+        if not create_new_images:
+            if not os.path.exists(f'red/adversarial/images/{method}'):
+                raise Exception(f'Could not find images for method {method}')
+
+            return ImageDataGenerator(rescale=1. / 255.).flow_from_directory(f'red/adversarial/images/{method}',
+                                                                             target_size=(224, 224),
+                                                                             batch_size=1,
+                                                                             class_mode='binary', seed=1)
+
+        if not images:
+            raise Exception('Missing input images to apply attack')
+
         # Create directory for new images
-        if not os.path.exists(f'red/adversarial_images/{method}'):
-            os.mkdir(f'red/adversarial_images/{method}')
-            os.mkdir(f'red/adversarial_images/{method}/real')
-            os.mkdir(f'red/adversarial_images/{method}/fake')
+        if not os.path.exists(f'red/adversarial/images/{method}'):
+            os.mkdir(f'red/adversarial/images/{method}')
+            os.mkdir(f'red/adversarial/images/{method}/real')
+            os.mkdir(f'red/adversarial/images/{method}/fake')
+        else:
+            shutil.rmtree(f'red/adversarial/images/{method}')
 
         number_of_images = len(images)
-        adversarial_images = []
 
         print(f'Applying method {method}..')
         for step, (image, label) in tqdm(enumerate(images)):
@@ -41,21 +56,26 @@ class AdversarialFramework:
 
             real_image = True if label == [1.] else False
 
-            # Save image
-            img = Image.fromarray(adversarial_image, mode='RGB')
-            if real_image:
-                img.save(f'red/adversarial_images/{method}/real/{step}.jpg')
-            else:
-                img.save(f'red/adversarial_images/{method}/fake/{step}.jpg')
+            adversarial_image = normalize(adversarial_image)
 
-        return adversarial_images
+            plt.title(f'True label: {label}')
+            # Save image
+            if real_image:
+                plt.imsave(f'red/adversarial/images/{method}/real/{step}.jpg', adversarial_image)
+            else:
+                plt.imsave(f'red/adversarial/images/{method}/fake/{step}.jpg', adversarial_image)
+
+        return ImageDataGenerator(rescale=1. / 255.).flow_from_directory(f'red/adversarial/images/{method}',
+                                                                         target_size=(224, 224),
+                                                                         batch_size=1,
+                                                                         class_mode='binary', seed=1)
 
     def evaluate_model(self, images):
         print('Evaluating model..')
         predictions = self.model.predict(images)
         real_labels = images.classes
 
-        real_images, fake_images, classified, misclassified = 0, 0, 0, 0
+        real_images, fake_images, classified, misclassified_real, misclassified_fake, misclassified = 0, 0, 0, 0, 0, 0
 
         for prediction, real_label in zip(predictions, real_labels):
             predicted_real = prediction[0] > 0.5
@@ -70,8 +90,10 @@ class AdversarialFramework:
                 fake_images += 1
 
             if predicted_real and fake_image:
+                misclassified_real += 1
                 misclassified += 1
             elif predicted_fake and real_image:
+                misclassified_fake += 1
                 misclassified += 1
             else:
                 classified += 1
@@ -87,9 +109,11 @@ class AdversarialFramework:
         print(f'Fake images: {fake_images}')
         print(f'Classified correctly: {classified}')
         print(f'Misclassified: {misclassified}')
+        print(f'Real image classified as false: {misclassified_fake}')
+        print(f'Fake image classified as real: {misclassified_real}')
         # print(metrics.classification_report(y_test, y_pred > 0.5))
 
-    def fast_gradient_signed_method(self, image, label, eps=2 / 255.0):
+    def fast_gradient_signed_method(self, image, label, eps=0.1):
         image = tf.cast(image, tf.float32)
 
         with tf.GradientTape() as tape:
@@ -108,4 +132,19 @@ class AdversarialFramework:
             # construct the image adversary
             adversary = (image + (signed_gradient * eps)).numpy()
             # return the image adversary to the calling function
+
             return adversary[0]
+
+    def load_images(self, path='red/data/test_data'):
+        image_gen = ImageDataGenerator(rescale=1. / 255.)
+        images = image_gen.flow_from_directory(path,
+                                               target_size=(224, 224),
+                                               batch_size=1,
+                                               class_mode='binary',
+                                               seed=1)
+        return images
+
+
+def normalize(x):
+    return np.array(
+        (x - np.min(x)) / (np.max(x) - np.min(x)))
