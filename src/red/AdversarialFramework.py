@@ -1,5 +1,7 @@
 import os
 import shutil
+
+import keras_preprocessing
 import numpy as np
 from keras.losses import MSE
 from keras_preprocessing.image import ImageDataGenerator
@@ -17,6 +19,7 @@ class AdversarialFramework:
         self.model = model
 
     def apply_attack(self, method, images=None, create_new_images=True):
+        root_path = "red/adversarial/images/" + method
         methods = {
             'FGSM': self.fast_gradient_signed_method,
         }
@@ -26,10 +29,10 @@ class AdversarialFramework:
             raise Exception(f'Method {method} is not supported yet')
 
         if not create_new_images:
-            if not os.path.exists(f'red/adversarial/images/{method}'):
+            if not os.path.exists(root_path):
                 raise Exception(f'Could not find images for method {method}')
 
-            return ImageDataGenerator(rescale=1. / 255.).flow_from_directory(f'red/adversarial/images/{method}',
+            return ImageDataGenerator(rescale=1. / 255.).flow_from_directory(root_path,
                                                                              target_size=(224, 224),
                                                                              batch_size=1,
                                                                              class_mode='binary', seed=1)
@@ -38,12 +41,12 @@ class AdversarialFramework:
             raise Exception('Missing input images to apply attack')
 
         # Create directory for new images
-        if not os.path.exists(f'red/adversarial/images/{method}'):
-            os.mkdir(f'red/adversarial/images/{method}')
-            os.mkdir(f'red/adversarial/images/{method}/real')
-            os.mkdir(f'red/adversarial/images/{method}/fake')
+        if not os.path.exists(root_path):
+            os.mkdir(root_path)
+            os.mkdir(f'{root_path}/real')
+            os.mkdir(f'{root_path}/fake')
         else:
-            shutil.rmtree(f'red/adversarial/images/{method}')
+            shutil.rmtree(root_path)
 
         number_of_images = len(images)
 
@@ -51,7 +54,7 @@ class AdversarialFramework:
         for step, (image, label) in tqdm(enumerate(images)):
             if step >= number_of_images:
                 break
-
+            label = label.numpy()
             adversarial_image = attack_method(image, label)
 
             real_image = True if label == [1.] else False
@@ -61,11 +64,11 @@ class AdversarialFramework:
             plt.title(f'True label: {label}')
             # Save image
             if real_image:
-                plt.imsave(f'red/adversarial/images/{method}/real/{step}.jpg', adversarial_image)
+                plt.imsave(f'{root_path}/real/{step}.jpg', adversarial_image)
             else:
-                plt.imsave(f'red/adversarial/images/{method}/fake/{step}.jpg', adversarial_image)
+                plt.imsave(f'{root_path}/fake/{step}.jpg', adversarial_image)
 
-        return ImageDataGenerator(rescale=1. / 255.).flow_from_directory(f'red/adversarial/images/{method}',
+        return ImageDataGenerator(rescale=1. / 255.).flow_from_directory(root_path,
                                                                          target_size=(224, 224),
                                                                          batch_size=1,
                                                                          class_mode='binary', seed=1)
@@ -73,7 +76,11 @@ class AdversarialFramework:
     def evaluate_model(self, images):
         print('Evaluating model..')
         predictions = self.model.predict(images)
-        real_labels = images.classes
+
+        if isinstance(images, keras_preprocessing.image.directory_iterator.DirectoryIterator):
+            real_labels = images.classes
+        else: #BatchDataset from DataLoader
+            real_labels = [x[1][0] for x in list(images.as_numpy_iterator())]
 
         real_images, fake_images, classified, misclassified_real, misclassified_fake, misclassified = 0, 0, 0, 0, 0, 0
 
@@ -135,7 +142,7 @@ class AdversarialFramework:
 
             return adversary[0]
 
-    def load_images(self, path='red/data/test_data'):
+    def load_images(self, path='data/test_data'):
         image_gen = ImageDataGenerator(rescale=1. / 255.)
         images = image_gen.flow_from_directory(path,
                                                target_size=(224, 224),
