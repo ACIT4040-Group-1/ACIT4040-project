@@ -43,6 +43,7 @@ class_names = [0, 1]
 print("Loading comp.")
 
 
+
 def plot_confusion_matrix(cm, class_names):
     """
     Returns a matplotlib figure containing the plotted confusion matrix.

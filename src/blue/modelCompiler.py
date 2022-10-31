@@ -4,16 +4,18 @@ import quality_feature_iqm as iqm
 import quality_feature_iqa as iqa
 from keras.layers import Dense, Dropout, activation
 from src.common.utils import get_config
+from src.common.DataLoader import DataLoader
 
 config = get_config()
+
 
 def get_exampleNet():
     net_config = config['models']['exampleNet']
     pretrained_model = tf.keras.applications.DenseNet121(
-        input_shape= net_config['input_shape'],
-        include_top= False,
-        weights= 'imagenet',
-        pooling= 'avg')
+        input_shape=net_config['input_shape'],
+        include_top=False,
+        weights='imagenet',
+        pooling='avg')
     model = Sequential()
     model.add(pretrained_model)
     model.add(Dense(units=32, activation='relu'))
@@ -27,6 +29,7 @@ def get_exampleNet():
                   loss=net_config['loss'],
                   metrics=net_config['metrics'])
     return model
+
 
 def get_akselnet():
     net_config = config['models']['akselnet']
@@ -50,25 +53,16 @@ def get_akselnet():
                   metrics=net_config['metrics'])
     return model
 
+
 def get_syedanet():
     net_config = config['models']['syedanet']
-    batch = dl.get_data()
-    features_set = []
-    for i in batch:
-        feature = iqa.compute_msu_iqa_features(rgbImage=i) + iqm.compute_quality_features(
-            image=i)
-        features_set.append(feature)
-    # input (256,256,3)
-    # data loader 32,256,256,3
     model = Sequential()
-    model.add(features_set)
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(1), kernel_regularizer='l2',activation='linear')
+    model.add(Dense(1), kernel_regularizer='l2', activation='linear')
     optimizer = tf.keras.optimizers.Adam()
-    print(net_config['loss'])
-    print(net_config['metrics'])
-    model.compile(optimizer = optimizer, loss = net_config['loss'], metrics = net_config['metrics'])
+    model.compile(optimizer=optimizer, loss=net_config['loss'], metrics=net_config['metrics'])
     return model
+
 
 '''
 def get_syedasvcnet():

@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from yaml.loader import SafeLoader
 
 from config import config
+from src.blue.feature_extraction import calculate_image_features
 from src.common.utils import download_from_drive
 
 
@@ -120,6 +121,8 @@ class DataLoader:
 
     def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
+        if config['syeda_dataloader']:
+            input_image = calculate_image_features(input_image)
         # input_image = self.image_augmentation(input_image)
         # input_image = self.image_resizing(input_image)
         # input_image = self.normalize(input_image)
@@ -127,6 +130,8 @@ class DataLoader:
 
     def load_image_test_or_val(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
+        if config['syeda_dataloader']:
+            input_image = calculate_image_features(input_image)
         # input_image = self.image_resizing(input_image)
         # input_image = self.normalize(input_image)
         return input_image, label

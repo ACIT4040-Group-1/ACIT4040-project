@@ -415,7 +415,6 @@ def blurriness(image):
     return blurF
 
 
-
 def compute_msu_iqa_features(rgbImage):
     """Computes image-quality features for the given input color (RGB) image.
     This is the main function to call.
@@ -434,7 +433,7 @@ def compute_msu_iqa_features(rgbImage):
         on Information Forensics and Security, vol. 10(4), pp. 746-761, April
         2015.
     """
-    print(rgbImage.shape)
+    ##print(rgbImage.shape)
     ## changing image channel to first##
     rgbImage = moveaxis(rgbImage, 2, 0)
 
