@@ -1,12 +1,20 @@
 import matplotlib.colors
+import numpy
 import numpy as np
 from numpy import moveaxis
 import scipy.signal as ssg
 import quality_feature_iqm as iqm
 import scipy
+import tensorflow as tf
 
 
 
+
+
+'''
+Code from: https://www.idiap.ch/software/beat/docs/bob/bob.ip.qualitymeasure
+/master/_modules/bob/ip/qualitymeasure/msu_iqa_features.html
+'''
 
 
 
@@ -434,6 +442,12 @@ def compute_msu_iqa_features(rgbImage):
         2015.
     """
     ##print(rgbImage.shape)
+
+
+    ## converting tf.tensor to numpy array:
+    print(type(rgbImage))
+    rgbImage = rgbImage.numpy()
+
     ## changing image channel to first##
     rgbImage = moveaxis(rgbImage, 2, 0)
 

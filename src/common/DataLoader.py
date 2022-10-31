@@ -121,9 +121,10 @@ class DataLoader:
 
     def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
+        #print(input_image)
+        #input_image = self.image_augmentation(input_image)
         if config['syeda_dataloader']:
             input_image = calculate_image_features(input_image)
-        # input_image = self.image_augmentation(input_image)
         # input_image = self.image_resizing(input_image)
         # input_image = self.normalize(input_image)
         return input_image, label
@@ -142,6 +143,8 @@ if __name__ == "__main__":
     DL = DataLoader()
     train_dataset = DL.get_data("train")
     test_dataset = DL.get_data("test")
+    for i in train_dataset:
+        print(i[0].numpy())
 
     for image, label in train_dataset.take(10):
         plt.imshow(image[0])
