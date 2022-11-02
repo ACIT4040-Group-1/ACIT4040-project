@@ -1,4 +1,7 @@
 
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
