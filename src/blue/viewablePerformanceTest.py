@@ -4,6 +4,6 @@ from src.common.DataLoader import DataLoader
 
 DL = DataLoader()
 data = DL.get_data('valid')
-model = keras.models.load_model('C:/Users/aksel/OneDrive/ACIT-Robotikk/ACIT4040 - Project/trained_models/resNet151_detector.h5')
+model = keras.models.load_model('src/blue/models/resNet151_detector.h5')
 # result = model.predict(data)
 plot_predictions(data, model, batch=1)
