@@ -116,7 +116,8 @@ class DataLoader:
         return input_image
 
     def image_resizing(self, image):
-        pass
+        return tf.image.resize(image, [224, 224],
+                                      method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
     def load_image_train(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
@@ -127,7 +128,7 @@ class DataLoader:
 
     def load_image_test_or_val(self, image_file, label):
         input_image = self.load_image_from_path(image_file)
-        # input_image = self.image_resizing(input_image)
+        input_image = self.image_resizing(input_image)
         # input_image = self.normalize(input_image)
         return input_image, label
 

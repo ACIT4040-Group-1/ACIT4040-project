@@ -3,20 +3,17 @@ from tensorflow import keras
 from keras.preprocessing.image import ImageDataGenerator
 
 if __name__ == '__main__':
-    model = keras.models.load_model('red/classifier/trained_models/red_classifier.h5')
-    # model = keras.models.load_model('red/classifier/trained_models/dense_net_trained.h5')
-
-    image_gen = ImageDataGenerator(rescale=1. / 255.)
-    test_images = image_gen.flow_from_directory('red/test_data', target_size=(224, 224), batch_size=1,
-                                                class_mode='binary', seed=1, shuffle=False)
-
-    attack_method = 'FSGM'
+    model = keras.models.load_model('red/classifier/trained_models/dense_net_trained.h5')
 
     AF = AdversarialFramework(model=model)
-    AF.evaluate_model(images=test_images)
-    AF.apply_attack(method=attack_method, images=test_images)
+    images = AF.load_images()
 
-    test_images = image_gen.flow_from_directory(f'red/adversarial_images/{attack_method}', target_size=(224, 224), batch_size=1,
-                                                class_mode='binary', seed=1, shuffle=False)
+    AF.evaluate_model(images=images)
 
-    AF.evaluate_model(images=test_images)
+    # Create new FGSM images of input images.
+    images = AF.apply_attack(method='FGSM', images=images)
+
+    # Loading already saved attack images (if they exist)
+    # images = AF.apply_attack(method='FGSM', create_new_images=False)
+
+    AF.evaluate_model(images=images)
