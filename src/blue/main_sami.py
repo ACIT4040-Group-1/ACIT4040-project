@@ -1,17 +1,22 @@
 
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
+from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Model
 from tensorflow.keras.utils import plot_model
 import tensorflow.keras.backend as K
 from tensorflow.keras.regularizers import l2
+import tensorflow as tf
 
-#import sys
-#sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\src\\common')
-#sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\src')
-#sys.path.insert(0,'C:\\Users\\saman\\github\\ACIT4040-project\\config')
-#print(sys.path)
-from src.common.DataLoader import  DataLoader
-from src.common.utils import get_config, copy_config
+import sys
+sys.path.insert(0,'src/common')
+sys.path.insert(0,'src')
+sys.path.insert(0,'config')
+print(sys.path)
+from DataLoader import  DataLoader
+
 
 class ConvBlocks:
     @staticmethod
@@ -100,8 +105,8 @@ if __name__ == '__main__':
     # model = XceptionNet()
     # model.summary()
     # plot_model(model, 'model.png', show_shapes = True)
-
-    model = XceptionNet(input_shape=(256, 256, 3), n_classes=2,
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+    model = XceptionNet(input_shape=(224, 224, 3), n_classes=2,
                         entry_flow=(('conv', 32, False), ('conv', 64, False), ('sconv_pool', 64, 64)),
                         middle_flow_repeat=9,
                         exit_flow=(('sconv_pool', 128, 128), ('sconv', 256), ('sconv', 256)),
@@ -120,18 +125,44 @@ if __name__ == '__main__':
 
     train_ds = DL.get_data("train")
 
+    valid_ds = DL.get_data("valid")
+
     print("Fit model on training data")
     history = model.fit(
         train_ds,
-        batch_size=64,
-        epochs=10000,
+        batch_size=1,
+        epochs=15,
         # We pass some validation for
         # monitoring validation loss and metrics
         # at the end of each epoch
-        validation_data=(test_ds),
+        validation_data=(valid_ds),
     )
-    history.history
+    #history.history
+
+    model.save('src/blue/trained_models/saminet/xception15.h5')
+
+    plt.figure(figsize=(10, 10))
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('src/blue/trained_models/saminet/xception15_ac.png')
+    plt.show()
+
+    plt.figure(figsize=(10, 10))
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('src/blue/trained_models/saminet/xception15_loss.png')
+    plt.show()
 
     print("Evaluate on test data")
     results = model.evaluate(test_ds, batch_size=128)
     print("test loss, test acc:", results)
+
+    model.save('src/blue/trained_models/saminet/xception15.h5')
