@@ -31,6 +31,8 @@ def get_model():
             return modelCompiler.get_res_net151_detector()
         case 'maryamnet':
             return modelCompiler.get_maryamnet()
+        case 'combined':
+            return modelCompiler.get_combined_model()
 
 
 log_dir = os.path.join(config['tensorboard']['log_dir'], config['model_name'],
@@ -116,34 +118,24 @@ def plot_to_image(figure):
     return image
 
 
-# Define the per-epoch callback.
 
+model = get_model()
+if type(model) is None:
+    print("No model returned")
 
-if __name__ == "__main__":
+# callbacks
+cm_callback = keras.callbacks.LambdaCallback(on_epoch_end=log_confusion_matrix)
+file_writer_cm = tf.summary.create_file_writer(log_dir + '/cm')
+early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
+tensorboard_callback = TensorBoard(log_dir=log_dir)
+save_model_callback = ModelCheckpoint(filepath=os.path.join(model_dir), monitor="val_accuracy", save_best_only=True)
 
-    model = get_model()
-    if type(model) is None:
-        print("No model returned")
+print('Model summary: ')
+model.summary()
 
-    # callbacks
-    cm_callback = keras.callbacks.LambdaCallback(on_epoch_end=log_confusion_matrix)
-    file_writer_cm = tf.summary.create_file_writer(log_dir + '/cm')
-    early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
-    # mm-dd-hh-mm-config['model_name']
-    tensorboard_callback = TensorBoard(log_dir=log_dir)
-    save_model_callback = ModelCheckpoint(filepath=os.path.join(model_dir), monitor="val_accuracy", save_best_only=True)
-
-    # image_gen = ImageDataGenerator(rescale=1. / 255.)
-    # valid_images = image_gen.flow_from_directory('training_data/valid', target_size=(224, 224), batch_size=1,
-    #                                              class_mode='binary')
-    #
-    # image_gen = ImageDataGenerator(rescale=1. / 255.)
-    # train_images = image_gen.flow_from_directory('training_data/train', target_size=(224, 224), batch_size=1,
-    #                                              class_mode='binary')
-
-    copy_config(log_dir)
-    model.fit(x=train_ds,
-              batch_size=256,
-              validation_data=test_ds,
-              epochs=1,
-              callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback, cm_callback])
+copy_config(log_dir)
+model.fit(x=train_ds,
+          batch_size=256,
+          validation_data=test_ds,
+          epochs=15,
+          callbacks=[early_stopping_callback, tensorboard_callback, save_model_callback, cm_callback])

@@ -19,3 +19,4 @@ src/red/gan/stylegan3/
 playground.ipynb
 
 /src/blue/trained_models/
+/src/blue/models/
