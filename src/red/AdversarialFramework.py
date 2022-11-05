@@ -79,7 +79,7 @@ class AdversarialFramework:
 
         if isinstance(images, keras_preprocessing.image.directory_iterator.DirectoryIterator):
             real_labels = images.classes
-        else: #BatchDataset from DataLoader
+        else:  # BatchDataset from DataLoader
             real_labels = [x[1][0] for x in list(images.as_numpy_iterator())]
 
         real_images, fake_images, classified, misclassified_real, misclassified_fake, misclassified = 0, 0, 0, 0, 0, 0
@@ -119,6 +119,9 @@ class AdversarialFramework:
         print(f'Real image classified as false: {misclassified_fake}')
         print(f'Fake image classified as real: {misclassified_real}')
         # print(metrics.classification_report(y_test, y_pred > 0.5))
+
+        return real_labels, predictions, [len(predictions), roc_auc_score, ap_score, real_images, fake_images,
+                                          classified, misclassified_real, misclassified_fake, misclassified]
 
     def fast_gradient_signed_method(self, image, label, eps=0.1):
         image = tf.cast(image, tf.float32)
