@@ -1,5 +1,5 @@
 #Dataloader
-batch_size: 10
+batch_size: 1
 buffer_size: null
 image_height: 256
 image_width: 256
@@ -11,7 +11,7 @@ limit: 0.1 #set null if for limitations, is a percentage on how many to use
 
 #ModelSpesifications
 model_name: "syedanet"
-syeda_dataloader: yes
+syeda_dataloader: no
 models:
   exampleNet:
     input_shape: [265, 256, 3]

@@ -26,11 +26,11 @@ def matlab_rgb2hsv(rgbImage): ## need channel last ##
 
     isUint8 = True
     if isUint8:
-        print("working fine")
+        #print("working fine")
         rgbImage = rgbImage.astype(np.float64) / 255.0
         ## if channel first in image then change it last
         rgbImage = moveaxis(rgbImage, 0, 2)
-        print(rgbImage.shape)
+        #print(rgbImage.shape)
 
     # hsv = np.zeros_like(rgbImage)
     ##in matplot rgb to hsv channel is last so change channel to last before applying it.
@@ -446,7 +446,7 @@ def compute_msu_iqa_features(rgbImage):
 
     ## converting tf.tensor to numpy array:
     print(type(rgbImage))
-    rgbImage = rgbImage.numpy()
+    #rgbImage = rgbImage.numpy()
 
     ## changing image channel to first##
     rgbImage = moveaxis(rgbImage, 2, 0)
@@ -467,8 +467,8 @@ def compute_msu_iqa_features(rgbImage):
     # compute blur-features
     blurFeat = blurriness(grayImage)
 
-    pinaBlur = marzilianoBlur(grayImage)
-    pinaBlur /= 30.0
+    #pinaBlur = marzilianoBlur(grayImage)
+    #pinaBlur /= 30.0
 
     # compute color-diversity features
     colorHist, totNumColors = calColorHist(rgbImage)
@@ -493,6 +493,6 @@ def compute_msu_iqa_features(rgbImage):
     fv = np.hstack((fv, colorHist))
     fv = np.hstack((fv, totNumColors))
     fv = np.hstack((fv, blurFeat))
-    fv = np.hstack((fv, pinaBlur))
+    #fv = np.hstack((fv, pinaBlur))
 
     return fv

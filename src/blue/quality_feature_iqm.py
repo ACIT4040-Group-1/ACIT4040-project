@@ -3,6 +3,7 @@ import scipy
 import scipy.signal as ssg
 import scipy.ndimage as snf
 import numpy as np
+from numpy import moveaxis
 
 
 def gauss_2d(shape=(3, 3), sigma=0.5):
@@ -50,22 +51,23 @@ def compute_quality_features(image):
         Iris, Fingerprint, and Face Recognition", IEEE Trans. on Image
         Processing Vol 23(2), 2014.
     """
+    #print(image.shape)
     # changing input channel to first##
     image = moveaxis(image, 2, 0)
     gray_image = None
     #print("shape of input image:")
-    # print(image.shape)
+    #print(image.shape)
     if len(image.shape) == 3:
         if(image.shape[0] == 3):
             # compute gray-level image for input color-frame
             gray_image = matlab_rgb2gray(image)
-#             print(gray_image.shape)
+#             #print(gray_image.shape)
         else:
             print('error. Wrong kind of input image')
     else:
         if len(image.shape) == 2:
             gray_image = image
-#             print(gray_image.shape)
+#             #print(gray_image.shape)
         else:
             print('error -- wrong kind of input')
 
