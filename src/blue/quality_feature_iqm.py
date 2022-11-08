@@ -652,8 +652,8 @@ def testRegionalMax():
     A[2, 7] = 45
     A[3, 8] = 44
     rm = regionalmax(A)
-    print(A)
-    print(rm)
+    #print(A)
+    #print(rm)
 
 
 def regionalmax(img):
