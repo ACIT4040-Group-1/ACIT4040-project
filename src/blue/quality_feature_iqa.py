@@ -54,7 +54,7 @@ def imshow(image):### may be deleted as of no use##
         # imshow() expects color image in a slightly different format, so first
         # rearrange the 3d data for imshow...
         outImg = image.tolist()
-        print(len(outImg))
+       #print(len(outImg))
         result = np.dstack((outImg[0], outImg[1]))
         outImg = np.dstack((result, outImg[2]))
         # [:,:,1], cmap=mpl.cm.gray)
@@ -366,63 +366,6 @@ def rgbhist(image, maxval, nBins, normType=0):
 
 
 
-def blurriness(image):
-    """
-    function to estimate blurriness of an image, as computed by Di Wen et al.
-    in their IEEE-TIFS-2015 paper.
-        :param image: a gray-level image
-    """
-
-    assert len(
-        image.shape) == 2, 'Input to blurriness() function should ' \
-                           'be a 2D (gray) image'
-
-    d = 4
-    fsize = 2 * d + 1
-    kver = np.ones((1, fsize)) / fsize
-    khor = kver.T
-
-    Bver = ssg.convolve2d(
-        image.astype(
-            np.float32), kver.astype(
-            np.float32), mode='same')
-    Bhor = ssg.convolve2d(
-        image.astype(
-            np.float32), khor.astype(
-            np.float32), mode='same')
-
-    # implementations of DFver and DFhor below don't look the same as in the
-    # Matlab code, but the following implementation produces equivalent
-    # results. there might be a bug in Matlab! The 2 commented statements above
-    # would correspond to the intent of the Matlab code.
-    DFver = np.diff(image.astype('int16'), axis=0)
-    DFver[np.where(DFver < 0)] = 0
-
-    DFhor = np.diff(image.astype('int16'), axis=1)
-    DFhor[np.where(DFhor < 0)] = 0
-
-    DBver = np.abs(np.diff(Bver, axis=0))
-    DBhor = np.abs(np.diff(Bhor, axis=1))
-
-    Vver = DFver.astype(float) - DBver.astype(float)
-    Vhor = DFhor.astype(float) - DBhor.astype(float)
-    Vver[Vver < 0] = 0  # Vver(find(Vver<0)) = 0;
-    Vhor[Vhor < 0] = 0  # Vhor(find(Vhor<0)) = 0;
-
-    SFver = np.sum(DFver)
-    SFhor = np.sum(DFhor)  # sum(DFhor(:));
-
-    SVver = np.sum(Vver)  # sum(Vver(:));
-    SVhor = np.sum(Vhor)  # sum(Vhor(:));
-
-    BFver = (SFver - SVver) / SFver
-    BFhor = (SFhor - SVhor) / SFhor
-
-    blurF = max(BFver, BFhor)  # max([BFver BFhor]);
-
-    return blurF
-
-
 def compute_msu_iqa_features(rgbImage):
     """Computes image-quality features for the given input color (RGB) image.
     This is the main function to call.
@@ -445,7 +388,7 @@ def compute_msu_iqa_features(rgbImage):
 
 
     ## converting tf.tensor to numpy array:
-    print(type(rgbImage))
+    #print(type(rgbImage))
     #rgbImage = rgbImage.numpy()
 
     ## changing image channel to first##
@@ -464,8 +407,9 @@ def compute_msu_iqa_features(rgbImage):
     grayImage = matlab_rgb2gray(rgbImage)
 
 
+
     # compute blur-features
-    blurFeat = blurriness(grayImage)
+    #blurFeat = blurriness(grayImage)
 
     #pinaBlur = marzilianoBlur(grayImage)
     #pinaBlur /= 30.0
@@ -488,11 +432,11 @@ def compute_msu_iqa_features(rgbImage):
     # stack the various feature-values in the same order as in MSU's matlab
     # code.
     fv = momentFeats.copy()
-    print(fv)
+    #print(fv)
 
     fv = np.hstack((fv, colorHist))
     fv = np.hstack((fv, totNumColors))
-    fv = np.hstack((fv, blurFeat))
+    #fv = np.hstack((fv, blurFeat))
     #fv = np.hstack((fv, pinaBlur))
 
     return fv
