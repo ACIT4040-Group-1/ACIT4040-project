@@ -1,14 +1,10 @@
-import matplotlib.pyplot as plt
-import sklearn.ensemble
-from numpy import moveaxis
 
-from src.common.DataLoader import DataLoader
+import sklearn.ensemble
 from src.common.utils import get_config, copy_config
 import numpy as np
 import tensorflow as tf
 import quality_feature_iqm as iqm
 import quality_feature_iqa as iqa
-import pandas as pd
 
 
 np.seterr(over='raise')
@@ -17,19 +13,22 @@ tf.config.run_functions_eagerly(True)
 
 from datetime import datetime
 import numpy as np
-import tensorflow as tf
 from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
 import os
-import keras
 import sklearn.metrics
 import itertools
 import io
 from config import config
-from src.blue import modelCompiler
 from src.common.DataLoader import DataLoader
 from src.common.utils import copy_config
 import matplotlib
 from matplotlib import pyplot as plt
+
+import keras.optimizers
+import tensorflow as tf
+
+from keras import Sequential, Model
+from keras.layers import Dense, Dropout, concatenate, Input
 
 matplotlib.use('TkAgg')
 
@@ -47,6 +46,9 @@ val_labels = np.concatenate([y for x, y in val_ds], axis=0)
 class_names = [0, 1]
 print("Loading comp.")
 train_fs =[]
+
+
+## creating feature set :
 
 for i in train_ds:
 
@@ -77,6 +79,7 @@ for i in test_ds:
 test_fs = np.asarray(test_fs)
 print(test_fs.shape)
 
+
 val_fs =[]
 
 for i in val_ds:
@@ -92,7 +95,7 @@ val_fs = np.asarray((val_fs))
 print(val_fs.shape)
 
 
-def plot_confusion_matrix(cm, class_names):
+def plot_confusion_matrix(cm, class_names): ## copy from detector framework
   """
   Returns a matplotlib figure containing the plotted confusion matrix.
   Args:
@@ -121,7 +124,7 @@ def plot_confusion_matrix(cm, class_names):
   plt.xlabel('Predicted label')
   return figure
 
-def log_confusion_matrix(epoch, logs):
+def log_confusion_matrix(epoch, logs):    ## copy from detector framework
     # Use the model to predict the values from the validation dataset.
     test_pred_raw = model.predict(val_ds)
     test_pred = np.round(test_pred_raw)
@@ -140,7 +143,7 @@ def log_confusion_matrix(epoch, logs):
 
 
 
-def plot_to_image(figure):
+def plot_to_image(figure):     ## copy from detector framework
   """Converts the matplotlib plot specified by 'figure' to a PNG image and
   returns it. The supplied figure is closed and inaccessible after this call."""
   # Save the plot to a PNG in memory.
@@ -158,15 +161,10 @@ def plot_to_image(figure):
 
 
 
-import keras.optimizers
-import tensorflow as tf
-
-from keras import Sequential, Model
-from keras.layers import Dense, Dropout, concatenate, Input
-
+# Building model:
 
 model = Sequential()
-model.add(Dense(units=64, activation='relu', input_shape= train_fs.shape))
+model.add(Dense(units=64, activation='relu', input_shape= (134,)))
 model.add(Dropout(rate=0.5))
 model.add(Dense(units=32, activation='relu'))
 model.add(Dropout(rate=0.5))
@@ -176,7 +174,7 @@ model.compile(optimizer=optimizer,
               loss='hinge', metrics= 'binary-accuracy')
 
 
-# callbacks
+# callbacks    ## copy from detector framework
 cm_callback = keras.callbacks.LambdaCallback(on_epoch_end=log_confusion_matrix)
 file_writer_cm = tf.summary.create_file_writer(log_dir + '/cm')
 early_stopping_callback = EarlyStopping(monitor='val_accuracy', patience=5)
